@@ -20,6 +20,9 @@ dependencies {
     // maybe use junit
     //testImplementation(libs.junit)
 
+    // apache
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+
     // spring dependencies
     implementation("org.springframework.boot:spring-boot-h2console")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

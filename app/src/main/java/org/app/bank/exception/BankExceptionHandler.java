@@ -16,7 +16,7 @@ public class BankExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccountNotFound(AccountNotFoundException exception, 
         HttpServletRequest request) {
 
-        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage());
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(response);
@@ -26,7 +26,7 @@ public class BankExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInsufficientFunds(InsufficientFundsException exception, 
         HttpServletRequest request) {
 
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(response);
@@ -36,7 +36,17 @@ public class BankExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNegativeBalance(NegativeBalanceException exception, 
         HttpServletRequest request) {
 
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(response);
+    }
+
+    @ExceptionHandler(EmptyNameException.class)
+    public ResponseEntity<ErrorResponse> handleEmptyName(EmptyNameException exception, 
+        HttpServletRequest request) {
+
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(response);

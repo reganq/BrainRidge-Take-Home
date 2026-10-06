@@ -1,10 +1,26 @@
 package org.app.bank.controller;
 
+import java.util.*;
+import org.apache.commons.lang3.tuple.Pair;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+import org.app.bank.service.CreateAccount;
+import org.app.bank.service.CreateAccountRequest;
+import org.app.bank.service.CreateAccountResponse;
+import org.app.bank.service.CreateAccountService;
+import org.app.bank.service.GetTransactionHistory;
+import org.app.bank.service.GetTransactionHistoryRequest;
+import org.app.bank.service.GetTransactionHistoryResponse;
+import org.app.bank.service.GetTransactionHistoryService;
+import org.app.bank.service.MakeTransaction;
+import org.app.bank.service.MakeTransactionRequest;
+import org.app.bank.service.MakeTransactionService;
 
 @RestController
 public class BankController {
@@ -29,7 +45,7 @@ public class BankController {
         CreateAccountResponse response = createAccountService.createAccount(request);
 
         String outputMessage = String.format("Created account %d for %s with initial balance %f", 
-            response.getId(), name, balance);
+            response.id(), name, balance);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(outputMessage);
     }
@@ -54,29 +70,29 @@ public class BankController {
 
         List<String> resultList = new ArrayList<>();
         Double balance = 0.0;
-        for (Pair<Long, Double> transaction : response.getTransactions()) {
-            if (transaction == null || transaction.getLeft() == null || transaction.getRight() == null) {
+        for (Pair<Long, Double> transaction : response.transactions()) {
+            if (transaction == null || transaction.getKey() == null || transaction.getValue() == null) {
                 continue;
             }
 
-            if (transaction.getLeft() == 0) {
+            if (transaction.getKey() == 0) {
                 // use 0 account ID as placeholder for initial balance
-                balance = transaction.getRight();
+                balance = transaction.getValue();
                 resultList.add(String.format("INITIAL BALANCE = %f", balance));
             }
-            else if (transaction.getRight() < 0) {
-                balance += transaction.getRight();
+            else if (transaction.getValue() < 0) {
+                balance += transaction.getValue();
                 resultList.add(String.format("TRANSFER OUT %f TO %d, NEW BALANCE = %f", 
-                    -transaction.getRight(), transaction.getLeft(), balance));
+                    -transaction.getValue(), transaction.getKey(), balance));
             }
             else {
-                balance += transaction.getRight();
+                balance += transaction.getValue();
                 resultList.add(String.format("TRANSFER IN %f FROM %d, NEW BALANCE = %f", 
-                    transaction.getRight(), transaction.getLeft(), balance));
+                    transaction.getValue(), transaction.getKey(), balance));
             }
         }
 
-        return ResponseEntity.status(HttoStatus.OK)
+        return ResponseEntity.status(HttpStatus.OK)
                              .body(resultList);
     }
 
