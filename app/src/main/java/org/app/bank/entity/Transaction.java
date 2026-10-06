@@ -23,6 +23,10 @@ public class Transaction {
         this.timestamp = Instant.now();
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Long getFromAccount() {
         return fromAccount;
     }
