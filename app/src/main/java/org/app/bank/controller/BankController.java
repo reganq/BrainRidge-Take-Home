@@ -64,8 +64,8 @@ public class BankController {
     }
 
     @GetMapping("/getTransactionHistory")
-    public ResponseEntity<List<String>> getTransactionHistory(@RequestParam Long id) {
-        GetTransactionHistoryRequest request = new GetTransactionHistoryRequest(id);
+    public ResponseEntity<List<String>> getTransactionHistory(@RequestParam Long account) {
+        GetTransactionHistoryRequest request = new GetTransactionHistoryRequest(account);
         GetTransactionHistoryResponse response = getTransactionHistoryService.getTransactionHistory(request);
 
         List<String> resultList = new ArrayList<>();
