@@ -1,5 +1,7 @@
 package org.app.bank.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -10,6 +12,7 @@ public class Transaction {
     private Long fromAccount;
     private Long toAccount;
     private Double amount;
+    private Instant timestamp;
 
     protected Transaction() {}
 
@@ -17,6 +20,7 @@ public class Transaction {
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
+        this.timestamp = Instant.now();
     }
 
     public Long getFromAccount() {
@@ -29,6 +33,10 @@ public class Transaction {
 
     public Double getAmount() {
         return amount;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
     }
     
 }
