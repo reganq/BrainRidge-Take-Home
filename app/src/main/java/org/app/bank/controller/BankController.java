@@ -44,7 +44,7 @@ public class BankController {
         CreateAccountRequest request = new CreateAccountRequest(name, balance);
         CreateAccountResponse response = createAccountService.createAccount(request);
 
-        String outputMessage = String.format("Created account %d for %s with initial balance %f", 
+        String outputMessage = String.format("Created account %d for %s with initial balance $%.2f", 
             response.id(), name, balance);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(outputMessage);
@@ -57,7 +57,7 @@ public class BankController {
         MakeTransactionRequest request = new MakeTransactionRequest(fromAccount, toAccount, amount);
         makeTransactionService.makeTransaction(request);
 
-        String outputMessage = String.format("Transferred %f from account %d to account %d", 
+        String outputMessage = String.format("Transferred $%.2f from account %d to account %d", 
             amount, fromAccount, toAccount);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(outputMessage);
@@ -78,16 +78,16 @@ public class BankController {
             if (transaction.isInit()) {
                 // use 0 account ID as placeholder for initial balance
                 balance = transaction.amount();
-                resultList.add(String.format("INITIAL BALANCE = %f", balance));
+                resultList.add(String.format("INITIAL BALANCE = $%.2f", balance));
             }
             else if (transaction.isOutgoing()) {
                 balance -= transaction.amount();
-                resultList.add(String.format("TRANSFER OUT %f TO %d, NEW BALANCE = %f", 
+                resultList.add(String.format("TRANSFER OUT $%.2f TO %d, NEW BALANCE = $%.2f", 
                     transaction.amount(), transaction.otherAccount(), balance));
             }
             else {
                 balance += transaction.amount();
-                resultList.add(String.format("TRANSFER IN %f FROM %d, NEW BALANCE = %f", 
+                resultList.add(String.format("TRANSFER IN $%.2f FROM %d, NEW BALANCE = $%.2f", 
                     transaction.amount(), transaction.otherAccount(), balance));
             }
         }
