@@ -13,11 +13,16 @@ import org.app.bank.service.CreateAccountResponse;
 import org.app.bank.service.CreateAccountService;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
+import static org.mockito.Mockito.lenient;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +37,14 @@ public class CreateAccountTest {
 
     @InjectMocks
     private CreateAccountService createAccountService;
+
+    // mocked account repository
+    private long nextAccountId = 1L;
+    private Map<Long, Account> accountMap = new HashMap<>();
+
+    // mocked transaction repository
+    private long nextTransactionId = 1L;
+    private Map<Long, Transaction> transactionMap = new HashMap<>();
 
     @Test
     void testCreateValidUser() {
@@ -58,7 +71,7 @@ public class CreateAccountTest {
         List<Transaction> allTransactions = transactionRepository.findAll();
         assertEquals(1, allTransactions.size());
 
-        Transaction transaction = allTransactions.get(1);
+        Transaction transaction = allTransactions.get(0);
         assertEquals(response.id(), transaction.getToAccount());
         assertEquals(10.5, transaction.getAmount());
 
@@ -91,5 +104,50 @@ public class CreateAccountTest {
         // check that no changes made to the database
         assertEquals(0, accountRepository.findAll().size());
         assertEquals(0, transactionRepository.findAll().size());
+    }
+
+    // used to setup IDs in the non-failing tests
+    @BeforeEach
+    void mockDatabase() {
+        // mocking account repository
+        lenient().when(accountRepository.saveAndFlush(any(Account.class))).thenAnswer(invocation -> {
+            Account account = invocation.getArgument(0);
+
+            if (account.getId() == null) {
+                account.setId(nextAccountId++);
+            }
+
+            accountMap.put(account.getId(), account);
+
+            return account;
+        });
+
+        lenient().when(accountRepository.findById(any(Long.class))).thenAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+
+            return (accountMap.containsKey(id)) ? Optional.of(accountMap.get(id)) 
+                                                : Optional.empty();
+        });
+
+        when(accountRepository.findAll()).thenAnswer(invocation -> {
+            return new ArrayList<>(accountMap.values());
+        });
+
+        // mocking transaction repository
+        lenient().when(transactionRepository.saveAndFlush(any(Transaction.class))).thenAnswer(invocation -> {
+            Transaction transaction = invocation.getArgument(0);
+
+            if (transaction.getId() == null) {
+                transaction.setId(nextTransactionId++);
+            }
+
+            transactionMap.put(transaction.getId(), transaction);
+
+            return transaction;
+        });
+
+        when(transactionRepository.findAll()).thenAnswer(invocation -> {
+            return new ArrayList<>(transactionMap.values());
+        });
     }
 }

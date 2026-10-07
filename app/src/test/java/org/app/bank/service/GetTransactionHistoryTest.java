@@ -18,7 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
+import static org.mockito.Mockito.lenient;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +40,14 @@ public class GetTransactionHistoryTest {
     Account accountOne;
     Account accountTwo;
     Account accountThree;
+
+    // mocked account repository
+    private long nextAccountId = 1L;
+    private Map<Long, Account> accountMap = new HashMap<>();
+
+    // mocked transaction repository
+    private long nextTransactionId = 1L;
+    private Map<Long, Transaction> transactionMap = new HashMap<>();
 
     @Test
     void testGetTransactionsValidUser() {
@@ -62,7 +73,7 @@ public class GetTransactionHistoryTest {
         assertEquals(15.0, response.transactions().get(1).getValue());
         
         assertEquals(accountThree.getId(), response.transactions().get(2).getKey());
-        assertEquals(-5.0, response.transactions().get(2).getValue());
+        assertEquals(-10.0, response.transactions().get(2).getValue());
     }
 
     @Test
@@ -76,25 +87,89 @@ public class GetTransactionHistoryTest {
 
     @BeforeEach
     void initializeDatabase() {
+        // mocking account repository
+        when(accountRepository.saveAndFlush(any(Account.class))).thenAnswer(invocation -> {
+            Account account = invocation.getArgument(0);
+
+            if (account.getId() == null) {
+                account.setId(nextAccountId++);
+            }
+
+            accountMap.put(account.getId(), account);
+
+            return account;
+        });
+
+        when(accountRepository.findById(any(Long.class))).thenAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+
+            return (accountMap.containsKey(id)) ? Optional.of(accountMap.get(id)) 
+                                                : Optional.empty();
+        });
+
+        // mocking transaction repository
+        when(transactionRepository.saveAndFlush(any(Transaction.class))).thenAnswer(invocation -> {
+            Transaction transaction = invocation.getArgument(0);
+
+            if (transaction.getId() == null) {
+                transaction.setId(nextTransactionId++);
+            }
+
+            transactionMap.put(transaction.getId(), transaction);
+
+            return transaction;
+        });
+
+        lenient().when(transactionRepository.findAllByFromAccount(any(Long.class))).thenAnswer(invocation -> {
+            Long fromAccountId = invocation.getArgument(0);
+
+            List<Transaction> output = new ArrayList<>();
+
+            for (Transaction transaction : transactionMap.values()) {
+                if (transaction.getFromAccount() == fromAccountId) {
+                    output.add(transaction);
+                }
+            }
+
+            return output;
+        });
+
+        lenient().when(transactionRepository.findAllByToAccount(any(Long.class))).thenAnswer(invocation -> {
+            Long toAccountId = invocation.getArgument(0);
+
+            List<Transaction> output = new ArrayList<>();
+
+            for (Transaction transaction : transactionMap.values()) {
+                if (transaction.getToAccount() == toAccountId) {
+                    output.add(transaction);
+                }
+            }
+
+            return output;
+        });
+
         accountOne = new Account("one", 10.0);
-        accountTwo = new Account("two", 20.0);
-        accountThree = new Account("three", 5.0);
+        accountRepository.saveAndFlush(accountOne);
 
         Transaction createOne = new Transaction(0L, accountOne.getId(), 10.0);
+        transactionRepository.saveAndFlush(createOne);
+
+        accountTwo = new Account("two", 20.0);
+        accountRepository.saveAndFlush(accountTwo);
+
         Transaction createTwo = new Transaction(0L, accountTwo.getId(), 20.0);
+        transactionRepository.saveAndFlush(createTwo);
+
+        accountThree = new Account("three", 5.0);
+        accountRepository.saveAndFlush(accountThree);
+
         Transaction createThree = new Transaction(0L, accountThree.getId(), 5.0);
+        transactionRepository.saveAndFlush(createThree);
+
         Transaction transactionOne = new Transaction(accountTwo.getId(), accountOne.getId(), 15.0);
+        transactionRepository.saveAndFlush(transactionOne);
         Transaction transactionTwo = new Transaction(accountOne.getId(), accountThree.getId(), 10.0);
-
-        accountRepository.save(accountOne);
-        transactionRepository.save(createOne);
-        accountRepository.save(accountTwo);
-        transactionRepository.save(createTwo);
-        accountRepository.save(accountThree);
-        transactionRepository.save(createThree);
-
-        transactionRepository.save(transactionOne);
-        transactionRepository.save(transactionTwo);
+        transactionRepository.saveAndFlush(transactionTwo);
     }
 
     @AfterEach
