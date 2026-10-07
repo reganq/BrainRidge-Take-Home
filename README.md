@@ -20,7 +20,7 @@ Creates an account with a given initial balance. Records account creation as a t
 #### Response
 ```
 {
-  "Created account 1 for Bob with initial balance 20.000000"
+  "Created account 1 for Bob with initial balance $20.00"
 }
 ```
 
@@ -40,7 +40,7 @@ Makes a transaction between two accounts, removing the amount from one and addin
 #### Response
 ```
 {
-  "Transferred 15.000000 from account 2 to account 1"
+  "Transferred $15.00 from account 2 to account 1"
 }
 ```
 
@@ -60,9 +60,9 @@ Returns the transaction history for a given account.
 ```
 {
   [
-    "INITIAL BALANCE = 30.000000",
-    "TRANSFER OUT 15.000000 TO 1, NEW BALANCE = 15.000000",
-    "TRANSFER IN 14.000000 FROM 3, NEW BALANCE = 29.000000"
+    "INITIAL BALANCE = $30.00",
+    "TRANSFER OUT $15.00 TO 1, NEW BALANCE = $15.00",
+    "TRANSFER IN $14.00 FROM 3, NEW BALANCE = $29.00"
   ]
 }
 ```
