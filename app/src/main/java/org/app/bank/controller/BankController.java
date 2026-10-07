@@ -1,7 +1,6 @@
 package org.app.bank.controller;
 
 import java.util.*;
-import org.apache.commons.lang3.tuple.Pair;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +16,7 @@ import org.app.bank.service.CreateAccountService;
 import org.app.bank.service.GetTransactionHistory;
 import org.app.bank.service.GetTransactionHistoryRequest;
 import org.app.bank.service.GetTransactionHistoryResponse;
+import org.app.bank.service.GetTransactionHistoryResponseInner;
 import org.app.bank.service.GetTransactionHistoryService;
 import org.app.bank.service.MakeTransaction;
 import org.app.bank.service.MakeTransactionRequest;
@@ -70,25 +70,25 @@ public class BankController {
 
         List<String> resultList = new ArrayList<>();
         Double balance = 0.0;
-        for (Pair<Long, Double> transaction : response.transactions()) {
-            if (transaction == null || transaction.getKey() == null || transaction.getValue() == null) {
+        for (GetTransactionHistoryResponseInner transaction : response.transactions()) {
+            if (transaction == null) {
                 continue;
             }
 
-            if (transaction.getKey() == 0) {
+            if (transaction.isInit()) {
                 // use 0 account ID as placeholder for initial balance
-                balance = transaction.getValue();
+                balance = transaction.amount();
                 resultList.add(String.format("INITIAL BALANCE = %f", balance));
             }
-            else if (transaction.getValue() < 0) {
-                balance += transaction.getValue();
+            else if (transaction.isOutgoing()) {
+                balance -= transaction.amount();
                 resultList.add(String.format("TRANSFER OUT %f TO %d, NEW BALANCE = %f", 
-                    -transaction.getValue(), transaction.getKey(), balance));
+                    transaction.amount(), transaction.otherAccount(), balance));
             }
             else {
-                balance += transaction.getValue();
+                balance += transaction.amount();
                 resultList.add(String.format("TRANSFER IN %f FROM %d, NEW BALANCE = %f", 
-                    transaction.getValue(), transaction.getKey(), balance));
+                    transaction.amount(), transaction.otherAccount(), balance));
             }
         }
 

@@ -66,14 +66,18 @@ public class GetTransactionHistoryTest {
         // check that the correct number of transactions were found, and that they are output in correct format
         assertEquals(3, response.transactions().size());
 
-        assertEquals(0L, response.transactions().get(0).getKey());
-        assertEquals(10.0, response.transactions().get(0).getValue());
+        assertTrue(response.transactions().get(0).isInit());
+        assertEquals(10.0, response.transactions().get(0).amount());
 
-        assertEquals(accountTwo.getId(), response.transactions().get(1).getKey());
-        assertEquals(15.0, response.transactions().get(1).getValue());
+        assertEquals(accountTwo.getId(), response.transactions().get(1).otherAccount());
+        assertFalse(response.transactions().get(1).isInit());
+        assertFalse(response.transactions().get(1).isOutgoing());
+        assertEquals(15.0, response.transactions().get(1).amount());
         
-        assertEquals(accountThree.getId(), response.transactions().get(2).getKey());
-        assertEquals(-10.0, response.transactions().get(2).getValue());
+        assertEquals(accountThree.getId(), response.transactions().get(2).otherAccount());
+        assertFalse(response.transactions().get(2).isInit());
+        assertTrue(response.transactions().get(2).isOutgoing());
+        assertEquals(10.0, response.transactions().get(2).amount());
     }
 
     @Test

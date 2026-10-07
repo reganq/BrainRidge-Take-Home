@@ -2,8 +2,6 @@ package org.app.bank.service;
 
 import java.util.*;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import org.springframework.stereotype.Service;
 
 import org.app.bank.entity.Account;
@@ -43,20 +41,22 @@ public class GetTransactionHistoryService implements GetTransactionHistory {
         transactions.sort(comparator);
 
         // add the transactions to the output list, in output format
-        List<Pair<Long, Double>> outputList = new ArrayList<>();
+        List<GetTransactionHistoryResponseInner> outputList = new ArrayList<>();
         for (Transaction transaction : transactions) {
-            Double amount;
+            Double amount = transaction.getAmount();
             Long otherAccount;
+            Boolean isInit = (transaction.getFromAccount() == 0L);
+            Boolean isOutgoing;
             if (transaction.getToAccount() == account.getId()) {
-                amount = transaction.getAmount();
                 otherAccount = transaction.getFromAccount();
+                isOutgoing = false;
             }
             else {
-                amount = -transaction.getAmount();
                 otherAccount = transaction.getToAccount();
+                isOutgoing = true;
             }
 
-            outputList.add(Pair.of(otherAccount, amount));
+            outputList.add(new GetTransactionHistoryResponseInner(isInit, isOutgoing, otherAccount, amount));
         }
 
         return new GetTransactionHistoryResponse(outputList);
