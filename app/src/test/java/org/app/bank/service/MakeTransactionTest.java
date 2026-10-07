@@ -190,19 +190,19 @@ public class MakeTransactionTest {
         accountOne = new Account("one", 10.0);
         accountRepository.saveAndFlush(accountOne);
 
-        Transaction createOne = new Transaction(0L, accountOne.getId(), 10.0);
+        Transaction createOne = new Transaction(accountOne.getId(), 10.0);
         transactionRepository.saveAndFlush(createOne);
 
         accountTwo = new Account("two", 20.0);
         accountRepository.saveAndFlush(accountTwo);
 
-        Transaction createTwo = new Transaction(0L, accountTwo.getId(), 20.0);
+        Transaction createTwo = new Transaction(accountTwo.getId(), 20.0);
         transactionRepository.saveAndFlush(createTwo);
 
         accountThree = new Account("three", 5.0);
         accountRepository.saveAndFlush(accountThree);
 
-        Transaction createThree = new Transaction(0L, accountThree.getId(), 5.0);
+        Transaction createThree = new Transaction(accountThree.getId(), 5.0);
         transactionRepository.saveAndFlush(createThree);
     }
 

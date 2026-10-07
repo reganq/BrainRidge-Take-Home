@@ -23,6 +23,13 @@ public class Transaction {
         this.timestamp = Instant.now();
     }
 
+    public Transaction(Long toAccount, Double amount) {
+        this.fromAccount = 0L;
+        this.toAccount = toAccount;
+        this.amount = amount;
+        this.timestamp = Instant.now();
+    }
+
     public Long getId() {
         return id;
     }

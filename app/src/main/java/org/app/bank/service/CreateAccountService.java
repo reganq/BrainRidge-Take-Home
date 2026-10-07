@@ -36,7 +36,7 @@ public class CreateAccountService implements CreateAccount {
         accountRepository.saveAndFlush(newAccount);
         
         // create and save the initial balance transaction
-        Transaction initialBalanceTransaction = new Transaction(0L, newAccount.getId(), request.initialBalance());
+        Transaction initialBalanceTransaction = new Transaction(newAccount.getId(), request.initialBalance());
         transactionRepository.saveAndFlush(initialBalanceTransaction);
 
         return new CreateAccountResponse(newAccount.getId());
